@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\xampp\htdocs\DAW2\parkease\parkease\venv
+set VIRTUAL_ENV=D:\DAW2\M07 Python\Flask\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
