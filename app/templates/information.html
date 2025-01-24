@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block content %}
+    <h1>Benvingut a la app de Flask</h1>
+
+    {% if username %}
+        <h1>Benvingut usuari {{ username }}</h1>
+    {% endif %}
+
+    {% if ip %}
+        <h2>La IP és: {{ ip }}</h2>
+    {% endif %}
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-5 mx-auto">
+                {{ wtf.quick_form(login_form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
