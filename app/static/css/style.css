@@ -47,7 +47,7 @@ body {
 /* Estilos específicos para la vista de registro */
 .register-container {
     margin: 0 auto;
-    max-width: 1200px;
+    justify-content: space-around;
     padding: 20px;
 }
 
@@ -81,4 +81,52 @@ body {
 .register-container .btn-success:hover {
     background-color: #004d40;
     border-color: #00332e;
+}
+
+/* Perfil */
+.perfil-container{
+    margin: 0;
+    margin-right: 5%;
+}
+.perfil-container .row{
+    margin-top: 3em;
+}
+
+.perfil-container .row img{
+    height: 100px;
+    width: 100px;
+    border-radius: 50px;
+}
+
+.btn-perfil{
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #1db954; 
+    color: #1db954;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    background-color: #1db954; 
+    color: #fff;
+}
+
+.btn-perfil:hover{
+    background-color: #004d40;
+    border-color: #00332e;
+}
+
+.datos-user{
+    text-align: left;
+    padding-left: 5%;
+}
+.datos-user h2{
+    text-align: left;
+}
+
+.datos-user .vehiculo{
+    color: #1db954;
+}
+.datos-user .mb-3{
+    margin-left: 5%;
 }
