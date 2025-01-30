@@ -5,6 +5,7 @@ Registrarse - ParkEase
 {% endblock %}
 
 {% block content %}
+{%include 'header.html'%}
 <div class="register-container">
     <h1 class="text-center">REGISTRARSE</h1>
     <form method="POST" action="{{ url_for('register') }}">

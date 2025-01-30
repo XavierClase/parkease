@@ -6,15 +6,13 @@
 {% endblock %}
 
 
-    {%include 'header.html'%}
-
-
 {% block content %}
+{%include 'header.html'%}
 <section class="about-section d-flex">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-4 d-flex flex-column align-items-center justify-content-center text-light contact-section">
-                <img src="{{ url_for('static', filename='images/plogo.png') }}" alt="ParkEase Logo" class="mb-3" width="180">
+                <img src="{{ url_for('static', filename='images/plogo.png') }}" alt="ParkEase Logo" class="mb-3" width="240">
                 <div class="contact-info mt-3">
                     <p class="fw-bold">Contacto</p>
                     <p><a href="mailto:info.parkease@gmail.com" class="text-light">info.parkease@gmail.com</a></p>
@@ -26,20 +24,20 @@
             <div class="col-md-8 d-flex flex-column align-items-center justify-content-center text-light about-text">
                 <h1 class="fw-bold text-white mb-4">SOBRE NOSOTROS</h1>
                 <p class="text-center">
-                    En <span class="text-success fw-bold">PARKEASE</span>, transformamos la experiencia de estacionamiento en los parkings. 
-                    Nos especializamos en la gestión <span class="text-success">EFICIENTE</span> de la ocupación de aparcamientos, brindándote herramientas inteligentes 
-                    y fáciles de usar para que encuentres, reserves y <span class="text-success">APROVECHES AL MÁXIMO TU TIEMPO</span>.
+                    En <span class="text-resaltado fw-bold">PARKEASE</span>, transformamos la experiencia de estacionamiento en los parkings. 
+                    Nos especializamos en la gestión <span class="text-resaltado fw-bold">EFICIENTE</span> de la ocupación de aparcamientos, brindándote herramientas inteligentes 
+                    y fáciles de usar para que encuentres, reserves y <span class="text-resaltado fw-bold">APROVECHES AL MÁXIMO TU TIEMPO</span>.
                 </p>
                 <p class="text-center">
                     Nuestra misión es simplificar tu día a día, ayudándote a evitar el estrés de buscar estacionamiento. 
                     A través de nuestra plataforma, puedes consultar la disponibilidad, asegurar tu plaza con anticipación 
-                    y <span class="text-warning fw-bold">DISFRUTAR</span> de una experiencia de aparcamiento cómoda y sin complicaciones.
+                    y <span class="text-resaltado fw-bold">DISFRUTAR</span> de una experiencia de aparcamiento cómoda y sin complicaciones.
                 </p>
                 <p class="text-center">
-                    Creemos en la <span class="text-info">INNOVACIÓN</span> como motor de cambio y trabajamos continuamente para ofrecer soluciones 
+                    Creemos en la <span class="text-resaltado fw-bold">INNOVACIÓN</span> como motor de cambio y trabajamos continuamente para ofrecer soluciones 
                     modernas y sostenibles que hagan de cada trayecto una experiencia más fluida.
                 </p>
-                <p class="fw-bold text-success">¡ESTAMOS AQUÍ PARA FACILITARTE EL CAMINO!</p>
+                <p class="fw-bold text-resaltado">¡ESTAMOS AQUÍ PARA FACILITARTE EL CAMINO!</p>
             </div>
         </div>
     </div>

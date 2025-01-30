@@ -126,9 +126,6 @@ def logout():
     return redirect('/')
 
 
-
-
-
 # Inicializar base de datos y ejecutar la aplicación
 if __name__ == "__main__":
     with app.app_context():

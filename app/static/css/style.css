@@ -87,7 +87,7 @@ body {
 /*NAVBAR*/
 header{
     background-color: black;
-    border-bottom: 1px solid #04C298;
+    border-bottom: 2px solid #04C298;
 }
 
 
@@ -101,15 +101,20 @@ header{
 /* Sección de contacto a la izquierda */
 .contact-section {
     background-color: #025339;  /* Verde más oscuro */
-    padding: 50px 20px;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
-
 /* Estilos para la sección de texto de "Sobre Nosotros" */
 .about-text {
-    padding: 50px 40px;
+    padding: 30px 40px;
     color: #ffffff;
     line-height: 1.8;
+    height: 100vh;
+    overflow: hidden;   
+    text-align: right;
+}
+.text-resaltado{
+    color: #ffffff;
 }
 
 /* Estilo para enlaces en la sección de contacto */
@@ -117,14 +122,13 @@ header{
     text-decoration: none;
     color: #ffffff;
 }
-
-.contact-info a:hover {
-    color: #00cc66; /* Verde claro */
+.text-center{
+    text-align: right;
 }
 
 /* Añadir línea sutil en la parte superior */
 .about-section {
-    border-top: 3px solid #025339;
+    border-top: 3px solid #004d26;
 }
 
 /* Estilo del título principal */
