@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+Perfil
+{% endblock %}
+
+{% block content %}
+<section class="register-container perfil-container">
+    <div class="display-flex justify-content-center row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <img src="/img.png" alt="Imagen de perfil">
+            </div>
+            <div class="mb-3">
+                <p>{{ user_data.email }}</p>
+            </div>
+            <div class="mb-3">
+                <button class="btn-perfil">Editar Datos</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 datos-user">
+            <h2>PERFIL</h2>
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ user_data.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="surname" class="form-label">Apellidos</label>
+                <input type="text" class="form-control" id="surname" name="surname" value="{{ user_data.surname }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" value="{{ user_data.dni }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Telefono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ user_data.telefono }}" required>
+            </div>
+        </div>
+        <div class="col-md-6 datos-user">
+            <h2>VEHICULOS</h2>
+            <div class="mb-3 vehiculo">
+                <p>Vehículo 1</p>
+            </div>
+            <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="modelo" name="modelo" value="{{ user_data.vehiculo.modelo }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="matricula" class="form-label">Matrícula</label>
+                <input type="text" class="form-control" id="matricula" name="matricula" value="{{ user_data.vehiculo.matricula }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" class="form-control" id="color" name="color" value="{{ user_data.vehiculo.color }}" required>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
