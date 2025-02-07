@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Prelogin | ParkEase
+{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <img src="{{ url_for('static', filename='img/logo_parkEasy.png') }}" alt="Logo ParkEase" class="logo mb-4">
+
+    <h1 class="main-title">Encuentra tu plaza, en un CLIC.</h1>
+    <p class="subtitle">Reserva tu aparcamiento ya</p>
+
+    <div class="buttons mt-4">
+        <a href="/login" class="btn btn-custom me-3">Iniciar Sesión</a>
+        <a href="/register" class="btn btn-custom">Registrarse</a>
+    </div>
+</div>
+{% endblock %}

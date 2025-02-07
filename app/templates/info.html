@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Sobre Nosotros | ParkEase
+{% endblock %}
+
+
+{% block content %}
+<section class="about-section d-flex">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-3 d-flex flex-column align-items-center justify-content-center text-light contact-section">
+                <img src="{{ url_for('static', filename='images/plogo.png') }}" alt="ParkEase Logo" class="mb-3" width="200">
+                <div class="contact-info mt-3">
+                    <p class="fw-bold">Contacto</p>
+                    <p><a href="mailto:info.parkease@gmail.com" class="text-light">info.parkease@gmail.com</a></p>
+                    <p>tlf. 605397795</p>
+                    <p>@parkease_official</p>
+                </div>
+            </div>
+
+            <div class="col-9 d-flex flex-column align-items-end text-light about-text">
+                <h1 class="fw-bold text-white mb-4">SOBRE NOSOTROS</h1>
+                <p class="text-center">
+                    En <span class="text-resaltado fw-bold">PARKEASE</span>, transformamos la experiencia de estacionamiento en los parkings. 
+                    Nos especializamos en la gestión <span class="text-resaltado fw-bold">EFICIENTE</span> de la ocupación de aparcamientos, brindándote herramientas inteligentes 
+                    y fáciles de usar para que encuentres, reserves y <span class="text-resaltado fw-bold">APROVECHES AL MÁXIMO TU TIEMPO</span>.
+                </p>
+                <p class="text-center">
+                    Nuestra misión es simplificar tu día a día, ayudándote a evitar el estrés de buscar estacionamiento. 
+                    A través de nuestra plataforma, puedes consultar la disponibilidad, asegurar tu plaza con anticipación 
+                    y <span class="text-resaltado fw-bold">DISFRUTAR</span> de una experiencia de aparcamiento cómoda y sin complicaciones.
+                </p>
+                <p class="text-center">
+                    Creemos en la <span class="text-resaltado fw-bold">INNOVACIÓN</span> como motor de cambio y trabajamos continuamente para ofrecer soluciones 
+                    modernas y sostenibles que hagan de cada trayecto una experiencia más fluida.
+                </p>
+                <p class="fw-bold text-resaltado">¡ESTAMOS AQUÍ PARA FACILITARTE EL CAMINO!</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}              
