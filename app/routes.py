@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, redirect, render_template, session, flash, g
 from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, Vehiculo
+from .models import User, Vehiculo, ParkingInferior, ParkingSuperior
 from . import db
 
 def register_routes(app):
@@ -138,6 +138,48 @@ def register_routes(app):
     @app.route('/info')
     def about():
         return render_template('info.html')
+    
+    # Ruta Parking Inferior
+    @app.route('/parkinginferior', methods=["GET", "POST"])
+    def parkinf():
+
+        plazas_data = ParkingInferior.query.all()
+
+        if request.method == 'POST':
+            numero_plaza = request.form.get('numero')
+            parking_inferior = ParkingInferior.query.filter_by(numero=numero_plaza).first()
+
+            if parking_inferior:
+                ParkingInferior.ocupada = int(request.form.get('ocupada'))  # Convertimos a entero (0 o 1)
+                db.session.commit()
+
+            # Volvemos a obtener todas las plazas después de actualizar
+            plazas_data = parking_inferior.query.all()
+                
+        return render_template('parkinf.html', plazas=plazas_data)
+
+        
+    
+    # Ruta Parking Superior
+    @app.route('/parkingsuperior', methods=["GET", "POST"])
+    def parksup():
+
+        plazas_data = ParkingSuperior.query.all()
+
+        if request.method == 'POST':
+            numero_plaza = request.form.get('numero')
+            parking_superior = ParkingSuperior.query.filter_by(numero=numero_plaza).first()
+
+            if parking_superior:
+                ParkingSuperior.ocupada = int(request.form.get('ocupada'))  # Convertimos a entero (0 o 1)
+                db.session.commit()
+
+            # Volvemos a obtener todas las plazas después de actualizar
+            plazas_data = parking_superior.query.all()
+                
+        return render_template('parksup.html', plazassup=plazas_data)
+
+
 
     # Ruta para cerrar sesión
     @app.route('/logout')

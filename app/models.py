@@ -25,5 +25,21 @@ class Vehiculo(db.Model):
     matricula = db.Column(db.String(255), unique=True)
     color = db.Column(db.String(255))
 
+
+# Modelo de Parking Inferior
+class ParkingInferior(db.Model):
+    __tablename__ = 'parking_inferior'
+
+    numero = db.Column(db.Integer, primary_key=True)
+    ocupada = db.Column(db.Boolean, default=False)
+
+# Modelo de Parking Inferior
+class ParkingSuperior(db.Model):
+    __tablename__ = 'parking_superior'
+
+    numero = db.Column(db.Integer, primary_key=True)
+    ocupada = db.Column(db.Boolean, default=False)
+
+
     def __repr__(self):
         return f'<Vehiculo {self.matricula}>'
