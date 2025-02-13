@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}
+Crear Vehículo
+{% endblock %}
+{% block content %}
+<section class="register-container vehicle-create-container">
+    <div class="display-flex justify-content-center row">
+        <div class="col-md-6">
+            <h2>Crear Vehículo</h2>
+            <form id="vehicle-form" method="POST" action="{{ url_for('create_vehicle') }}">
+                <div class="mb-3">
+                    <label for="marca" class="form-label">Marca</label>
+                    <input type="text" class="form-control" id="marca" name="marca" placeholder="Ej. Toyota" required>
+                </div>
+                <div class="mb-3">
+                    <label for="modelo" class="form-label">Modelo</label>
+                    <input type="text" class="form-control" id="modelo" name="modelo" placeholder="Ej. Corolla" required>
+                </div>
+                <div class="mb-3">
+                    <label for="matricula" class="form-label">Matrícula</label>
+                    <input type="text" class="form-control" id="matricula" name="matricula" placeholder="Ej. ABC1234" required>
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color</label>
+                    <input type="text" class="form-control" id="color" name="color" placeholder="Ej. Rojo" required>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Guardar Vehículo</button>
+                    <a href="{{ url_for('profile') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

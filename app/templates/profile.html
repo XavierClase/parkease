@@ -1,9 +1,7 @@
 {% extends "base.html" %}
-
 {% block title %}
 Perfil
 {% endblock %}
-
 {% block content %}
 <section class="register-container perfil-container">
     <div class="display-flex justify-content-center row">
@@ -15,50 +13,65 @@ Perfil
                 <p>{{ user_data.email }}</p>
             </div>
             <div class="mb-3">
-                <button class="btn-perfil">Editar Datos</button>
+                <!-- Botón para editar -->
+                {% if not edit_mode %}
+                    <a href="{{ url_for('profile', edit='true') }}" class="btn-perfil">Editar Datos</a>
+                {% else %}
+                    <button type="submit" form="profile-form" class="btn-perfil">Guardar Cambios</button>
+                {% endif %}
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-6 datos-user">
             <h2>PERFIL</h2>
-            <div class="mb-3">
-                <label for="name" class="form-label">Nombre</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ user_data.name }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="surname" class="form-label">Apellidos</label>
-                <input type="text" class="form-control" id="surname" name="surname" value="{{ user_data.surname }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Correo</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="dni" class="form-label">DNI</label>
-                <input type="text" class="form-control" id="dni" name="dni" value="{{ user_data.dni }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="telefono" class="form-label">Telefono</label>
-                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ user_data.telefono }}" required>
-            </div>
+            <form id="profile-form" method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ user_data.name }}" required {% if not edit_mode %}disabled{% endif %}>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required {% if not edit_mode %}disabled{% endif %}>
+                </div>
+                <div class="mb-3">
+                    <label for="dni" class="form-label">DNI</label>
+                    <input type="text" class="form-control" id="dni" name="dni" value="{{ user_data.dni }}" required readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="text" class="form-control" id="telefono" name="telefono" value="{{ user_data.phone }}" required {% if not edit_mode %}disabled{% endif %}>
+                </div>
+            </form>
         </div>
         <div class="col-md-6 datos-user">
-            <h2>VEHICULOS</h2>
-            <div class="mb-3 vehiculo">
-                <p>Vehículo 1</p>
-            </div>
-            <div class="mb-3">
-                <label for="modelo" class="form-label">Modelo</label>
-                <input type="text" class="form-control" id="modelo" name="modelo" value="{{ user_data.vehiculo.modelo }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="matricula" class="form-label">Matrícula</label>
-                <input type="text" class="form-control" id="matricula" name="matricula" value="{{ user_data.vehiculo.matricula }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="color" class="form-label">Color</label>
-                <input type="text" class="form-control" id="color" name="color" value="{{ user_data.vehiculo.color }}" required>
+            <h2>VEHÍCULOS</h2>
+            {% if user_data.vehiculos %}
+                {% for vehiculo in user_data.vehiculos %}
+                    <div class="mb-3 vehiculo">
+                        <p>Vehículo {{ loop.index }}</p>
+                        <div class="vehicle-info">
+                            <p><strong>Marca:</strong> <span>{{ vehiculo.marca }}</span></p>
+                            <p><strong>Modelo:</strong> <span>{{ vehiculo.modelo }}</span></p>
+                            <p><strong>Matrícula:</strong> <span>{{ vehiculo.matricula }}</span></p>
+                            <p><strong>Color:</strong> <span>{{ vehiculo.color }}</span></p>
+                        </div>
+                        <div class="vehicle-actions">
+                            <a href="{{ url_for('edit_vehicle', vehicle_id=vehiculo.id) }}" class="btn btn-edit">Editar</a>
+                            <form action="{{ url_for('delete_vehicle', vehicle_id=vehiculo.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este vehículo?');">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay vehículos registrados.</p>
+            {% endif %}
+            <!-- Botón para crear un nuevo vehículo -->
+            <div class="mt-3">
+                <a href="{{ url_for('create_vehicle') }}" class="btn btn-create">Crear Vehículo</a>
             </div>
         </div>
     </div>
