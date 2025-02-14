@@ -1,8 +1,13 @@
-from flask import Flask, request, make_response, redirect, render_template, session, flash, g
+from flask import Flask, request, make_response, redirect, render_template, session, flash, g, jsonify, url_for
 from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, Vehiculo, ParkingInferior, ParkingSuperior
+from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
 from . import db
+from flask import jsonify
+# from django.utils import timezone
+
+
+sensor_status = {"status": "unknown"}
 
 def register_routes(app):
     # Antes de cada request, definir si hay sesión activa
@@ -10,6 +15,34 @@ def register_routes(app):
     def before_request():
         g.user_logged_in = 'username' in session
 
+    @app.route('/sensor', methods=['POST'])
+    def receive_sensor_data():
+        global sensor_status
+        data = request.get_json()
+        
+        if data and "status" in data:
+            try:
+                status = int(data["status"])  # Convertir a entero (0 o 1)
+                sensor_status["status"] = status
+                print("Estado del sensor:", status)
+
+                # Actualizar la base de datos en la plaza 2
+                db.session.execute(
+                    "UPDATE parking_superior SET ocupado = :status WHERE num_plaza = 2",
+                    {"status": status}
+                )
+                db.session.commit()
+
+                return jsonify({"message": "Dato recibido y almacenado", "status": status})
+
+            except ValueError:
+                return jsonify({"error": "Formato de status inválido"}), 400
+        else:
+            return jsonify({"error": "Datos inválidos"}), 400
+
+    @app.route('/sensor_status', methods=['GET'])
+    def get_sensor_status():
+        return jsonify(sensor_status)
     # Ruta de inicio
     @app.route('/')
     def index():
@@ -41,16 +74,13 @@ def register_routes(app):
             if user:
                 if check_password_hash(user.password, password):
                     session['username'] = username
-                    flash("Sesión iniciada correctamente.", "success")
-                else:
-                    flash("Contraseña incorrecta. Intenta nuevamente.", "error")
+            
             else:
                 hashed_password = generate_password_hash(password)
                 new_user = User(username=username, password=hashed_password)
                 db.session.add(new_user)
                 db.session.commit()
                 session['username'] = username
-                flash("Usuario creado y sesión iniciada correctamente.", "success")
 
             return redirect('/main')
 
@@ -64,16 +94,13 @@ def register_routes(app):
             password = request.form.get('password')
 
             if not name or not password:
-                flash("Faltan campos en el formulario.")
                 return redirect('/login')
 
             user = User.query.filter_by(name=name).first()
             if user and check_password_hash(user.password, password):
                 session['username'] = name
-                flash("Sesión iniciada correctamente.")
+                session['user_id'] = user.id
                 return redirect('/home')
-            else:
-                flash("Usuario o contraseña incorrectos.")
         return render_template('login.html')
 
     # Ruta de registro
@@ -112,27 +139,163 @@ def register_routes(app):
 
     @app.route('/profile', methods=['GET', 'POST'])
     def profile():
+        # Verificar si el usuario ha iniciado sesión
         if 'user_id' not in session:
             flash("Por favor, inicia sesión para acceder a tu perfil.", "warning")
             return redirect('/login')
-
-        user_id = session['user_id']
-        user = User.query.get(user_id)
-
+        
+        # Obtener el usuario actual con sus vehículos
+        user = User.query.options(db.joinedload(User.vehiculos)).get(session['user_id'])
+        if not user:
+            flash("Usuario no encontrado.", "danger")
+            return redirect('/login')
+        
+        # Determinar si estamos en modo edición
+        edit_mode = request.args.get('edit') == 'true'
+        
         if request.method == 'POST':
-            user.username = request.form.get('name')
+            # Validar campos obligatorios
+            if not request.form.get('name') or not request.form.get('email'):
+                flash("Faltan campos obligatorios.", "error")
+                return redirect(url_for('profile'))
+            
+            # Actualizar datos del usuario
+            user.name = request.form.get('name')
             user.email = request.form.get('email')
             user.phone = request.form.get('telefono')
-            user.modelo_vehiculo = request.form.get('modelo')
-            user.matricula = request.form.get('matricula')
-            user.color = request.form.get('color')
-
+            
+            # Guardar cambios en la base de datos
             db.session.commit()
             flash("Perfil actualizado exitosamente.", "success")
-
+            return redirect(url_for('profile'))
+        
+        # Preparar los datos para enviar a la plantilla
         user_data = user.to_dict()
+        return render_template('profile.html', user_data=user_data, edit_mode=edit_mode)
 
-        return render_template('profile.html', user_data=user_data)
+
+    @app.route('/create_vehicle', methods=['GET', 'POST'])
+    def create_vehicle():
+        # Verificar si el usuario ha iniciado sesión
+        if 'user_id' not in session:
+            flash("Por favor, inicia sesión para acceder a esta página.", "warning")
+            return redirect('/login')
+        
+        # Obtener el usuario actual
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash("Usuario no encontrado.", "danger")
+            return redirect('/login')
+        
+        if request.method == 'POST':
+            # Validar campos obligatorios
+            marca = request.form.get('marca')
+            modelo = request.form.get('modelo')
+            matricula = request.form.get('matricula')
+            color = request.form.get('color')
+            
+            if not marca or not modelo or not matricula or not color:
+                flash("Todos los campos son obligatorios.", "error")
+                return redirect(url_for('create_vehicle'))
+            
+            # Validar que la matrícula sea única
+            existing_vehicle = Vehiculo.query.filter_by(matricula=matricula).first()
+            if existing_vehicle:
+                flash("La matrícula ya está registrada.", "error")
+                return redirect(url_for('create_vehicle'))
+            
+            # Crear un nuevo vehículo
+            new_vehicle = Vehiculo(
+                id_user=user.id,
+                marca=marca,
+                modelo=modelo,
+                matricula=matricula,
+                color=color
+            )
+            db.session.add(new_vehicle)
+            db.session.commit()
+            
+            flash("Vehículo creado exitosamente.", "success")
+            return redirect(url_for('profile'))
+        
+        # Mostrar el formulario de creación
+        return render_template('create_vehicle.html')
+    
+    @app.route('/edit_vehicle/<int:vehicle_id>', methods=['GET', 'POST'])
+    def edit_vehicle(vehicle_id):
+        # Verificar si el usuario ha iniciado sesión
+        if 'user_id' not in session:
+            flash("Por favor, inicia sesión para acceder a esta página.", "warning")
+            return redirect('/login')
+        
+        # Obtener el vehículo por su ID
+        vehicle = Vehiculo.query.get(vehicle_id)
+        if not vehicle:
+            flash("Vehículo no encontrado.", "danger")
+            return redirect(url_for('profile'))
+        
+        # Verificar que el vehículo pertenece al usuario actual
+        if vehicle.id_user != session['user_id']:
+            flash("No tienes permiso para editar este vehículo.", "danger")
+            return redirect(url_for('profile'))
+        
+        if request.method == 'POST':
+            # Validar campos obligatorios
+            marca = request.form.get('marca')
+            modelo = request.form.get('modelo')
+            matricula = request.form.get('matricula')
+            color = request.form.get('color')
+            
+            if not marca or not modelo or not matricula or not color:
+                flash("Todos los campos son obligatorios.", "error")
+                return redirect(url_for('edit_vehicle', vehicle_id=vehicle_id))
+            
+            # Validar que la matrícula sea única (excepto para el mismo vehículo)
+            existing_vehicle = Vehiculo.query.filter_by(matricula=matricula).first()
+            if existing_vehicle and existing_vehicle.id != vehicle.id:
+                flash("La matrícula ya está registrada.", "error")
+                return redirect(url_for('edit_vehicle', vehicle_id=vehicle_id))
+            
+            # Actualizar los datos del vehículo
+            vehicle.marca = marca
+            vehicle.modelo = modelo
+            vehicle.matricula = matricula
+            vehicle.color = color
+            
+            # Guardar cambios en la base de datos
+            db.session.commit()
+            
+            flash("Vehículo actualizado exitosamente.", "success")
+            return redirect(url_for('profile'))
+        
+        # Mostrar el formulario de edición
+        return render_template('edit_vehicle.html', vehicle_data=vehicle.to_dict())
+
+
+    @app.route('/delete_vehicle/<int:vehicle_id>', methods=['POST'])
+    def delete_vehicle(vehicle_id):
+        # Verificar si el usuario ha iniciado sesión
+        if 'user_id' not in session:
+            flash("Por favor, inicia sesión para acceder a esta página.", "warning")
+            return redirect('/login')
+        
+        # Obtener el vehículo por su ID
+        vehicle = Vehiculo.query.get(vehicle_id)
+        if not vehicle:
+            flash("Vehículo no encontrado.", "danger")
+            return redirect(url_for('profile'))
+        
+        # Verificar que el vehículo pertenece al usuario actual
+        if vehicle.id_user != session['user_id']:
+            flash("No tienes permiso para eliminar este vehículo.", "danger")
+            return redirect(url_for('profile'))
+        
+        # Eliminar el vehículo
+        db.session.delete(vehicle)
+        db.session.commit()
+        
+        flash("Vehículo eliminado exitosamente.", "success")
+        return redirect(url_for('profile'))
     
     # Ruta acceso página información de la empresa
     @app.route('/info')
@@ -150,10 +313,9 @@ def register_routes(app):
             parking_inferior = ParkingInferior.query.filter_by(numero=numero_plaza).first()
 
             if parking_inferior:
-                ParkingInferior.ocupada = int(request.form.get('ocupada'))  # Convertimos a entero (0 o 1)
+                ParkingInferior.ocupada = int(request.form.get('ocupada'))  
                 db.session.commit()
 
-            # Volvemos a obtener todas las plazas después de actualizar
             plazas_data = parking_inferior.query.all()
                 
         return render_template('parkinf.html', plazas=plazas_data)
@@ -179,6 +341,96 @@ def register_routes(app):
                 
         return render_template('parksup.html', plazassup=plazas_data)
 
+
+    # @app.route('/api/entrada', method=['POST'])
+    # def entrada():
+    #     data = request.get_json(force=True)
+    #     #print(data)
+    #     #return data
+    #     matricula = data.get['matricula']
+    #     reg = Vehiculo.query.filter_by(matricula=matricula).first()
+
+    #     if not reg:
+    #         return jsonify({'error': 'matricula no registrada'}), 403
+        
+    #     spotLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
+    #     spotLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
+
+    #     if spotLibreinf:
+    #         newlog = ParkingLog[
+    #             matricula: matricula,
+    #             tiempo_entrada: datetime.now(),
+    #             tiempo_salida: None
+    #         ]
+    #         db.session.add(newlog)
+    #         db.session.commit
+    #         return jsonify({'success': 'entrada registrada'}), 200
+
+    #     else:
+    #         if spotLibresup:
+    #             newlog = ParkingLog[
+    #             matricula: matricula,
+    #             tiempo_entrada: datetime.now(),
+    #             tiempo_salida: None
+    #             ]
+    #             db.session.add(newlog)
+    #             db.session.commit
+
+    #         else:
+    #             return jsonify({'error': 'parking completo'}), 409
+            
+        
+    # @app.route('/api/actualizarplaza', method=['POST'])
+    # def actualizarplaza():
+    #     data = request.get_json(force=True)
+    #     #print(data)
+    #     #return data
+    #     plazaID = data.get['plazaID']
+    #     estado = data.get['estado']
+    #     plazaLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
+    #     plazaLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
+    #     plaza = ParkingInferior.query.filter_by(numero=plazaID).first()
+    #     plaza.ocupada = estado
+    #     db.session.commit
+    #     return jsonify({'success': 'plaza actualizada'}), 200
+    
+
+    # @app.route('/api/salida', method=['POST'])
+    # def entrada():
+    #     data = request.get_json(force=True)
+    #     #print(data)
+    #     #return data
+    #     matricula = data.get['matricula']
+    #     reg = Vehiculo.query.filter_by(matricula=matricula).first()
+
+    #     if not reg:
+    #         return jsonify({'error': 'matricula no registrada'}), 403
+        
+    #     spotLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
+    #     spotLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
+
+    #     if spotLibreinf:
+    #         newlog = ParkingLog[
+    #             matricula: matricula,
+    #             tiempo_entrada: None,
+    #             tiempo_salida: datetime.now()
+    #         ]
+    #         db.session.add(newlog)
+    #         db.session.commit
+    #         return jsonify({'success': 'entrada registrada'}), 200
+
+    #     else:
+    #         if spotLibresup:
+    #             newlog = ParkingLog[
+    #             matricula: matricula,
+    #             tiempo_entrada: datetime.now(),
+    #             tiempo_salida: None
+    #             ]
+    #             db.session.add(newlog)
+    #             db.session.commit
+
+    #         else:
+    #             return jsonify({'error': 'parking completo'}), 409
 
 
     # Ruta para cerrar sesión
