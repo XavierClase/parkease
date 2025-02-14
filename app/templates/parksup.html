@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Parking Inferior | ParkEase
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container mt-5 d-flex justify-content-between">
+    <div>
+        <h3>PARKING Superior</h3>
+        <div class="parking-lot">
+                {% for plaza in plazassup %}
+                <div class="parking-spot {% if plaza.ocupada == 1 %}occupied{% endif %}">
+                    <span>{{ plaza.numero }}</span>
+                    {% if plaza.ocupada == 1 %}
+                        
+                        <img src="{{ url_for('static', filename='icons/redpark.svg') }}" width="50"> 
+                    {% else %}
+                        <img src="{{ url_for('static', filename='icons/greenpark.svg') }}" width="50"> 
+                    {% endif %}
+                </div>
+                {% else %}
+                    <p>No hay plazas disponibles.</p>  <!-- Mensaje si no hay plazas en la base de datos -->
+                {% endfor %}
+            </div>
+    </div>
+    <div class="status">
+        <h3>Ocupación</h3>
+        <div class="circle-chart" id="circleChart">0%</div>
+        <p id="ocupacion">Plazas ocupadas: <span>0</span> / 20</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let plazas = document.querySelectorAll(".parking-spot");
+            let ocupadas = 0;
+            let totalPlazas = plazas.length;
+    
+            // Contar plazas ocupadas
+            plazas.forEach(plaza => {
+                if (plaza.classList.contains("occupied")) {
+                    ocupadas++;
+                }
+            });
+    
+            // Calcular porcentaje de ocupación
+            let porcentaje = Math.round((ocupadas / totalPlazas) * 100);
+    
+            // Actualizar el gráfico circular
+            let circleChart = document.getElementById("circleChart");
+            circleChart.textContent = porcentaje + "%";
+            circleChart.style.background = `conic-gradient(red 0% ${porcentaje}%, #04C298 ${porcentaje}% 100%)`;
+    
+            // Mostrar cantidad de plazas ocupadas
+            document.getElementById("ocupacion").innerHTML = `Plazas ocupadas: ${ocupadas} / ${totalPlazas}`;
+        });
+    </script>
+</div>
+{% endblock %}

@@ -1,4 +1,7 @@
 from . import db
+from datetime import datetime, timezone
+
+
 
 # Modelo de usuario
 class User(db.Model):
@@ -46,6 +49,7 @@ class Vehiculo(db.Model):
             "color": self.color
         }
 
+<<<<<<< HEAD
 class ParkingSpot(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     spot_id = db.Column(db.String(10), unique=True, nullable=False)
@@ -62,4 +66,38 @@ class ParkingLog(db.Model):
 
     def __repr__(self):
         return f'<ParkingLog {self.spot_id} - {self.user_id} - {self.timestamp}>'
+=======
+
+# Modelo de Parking Inferior
+class ParkingInferior(db.Model):
+    __tablename__ = 'parking_inferior'
+
+    numero = db.Column(db.Integer, primary_key=True)
+    ocupada = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'<Vehiculo {self.matricula}>'
+# Modelo de Parking Inferior
+class ParkingSuperior(db.Model):
+    __tablename__ = 'parking_superior'
+
+    numero = db.Column(db.Integer, primary_key=True)
+    ocupada = db.Column(db.Boolean, default=False)
+
+
+    def __repr__(self):
+        return f'<Vehiculo {self.matricula}>'
+    
+# Modelo Entradas del Parking 
+
+class ParkingLog(db.Model):
+    __tablename__ = 'parking_log'
+    id = db.Column(db.Integer, primary_key=True)
+    matricula = db.Column(db.String(255), nullable=False)
+    tiempo_entrada = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    tiempo_salida = db.Column(db.DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f'<ParkingLog {self.matricula}>'
+>>>>>>> origin/alex
 
