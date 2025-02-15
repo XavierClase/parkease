@@ -10,13 +10,12 @@
 
 <div class="container mt-5 d-flex justify-content-between">
     <div>
-        <h3>PARKING Superior</h3>
+        <h3>PARKING SUPERIOR</h3>
         <div class="parking-lot">
                 {% for plaza in plazassup %}
                 <div class="parking-spot {% if plaza.ocupada == 1 %}occupied{% endif %}">
                     <span>{{ plaza.numero }}</span>
-                    {% if plaza.ocupada == 1 %}
-                        
+                    {% if plaza.ocupada == 1 %} 
                         <img src="{{ url_for('static', filename='icons/redpark.svg') }}" width="50"> 
                     {% else %}
                         <img src="{{ url_for('static', filename='icons/greenpark.svg') }}" width="50"> 
@@ -26,7 +25,7 @@
                     <p>No hay plazas disponibles.</p>  <!-- Mensaje si no hay plazas en la base de datos -->
                 {% endfor %}
             </div>
-    </div>
+        </div>
     <div class="status">
         <h3>Ocupación</h3>
         <div class="circle-chart" id="circleChart">0%</div>
