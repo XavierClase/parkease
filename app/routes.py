@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
 from . import db
 from flask import jsonify
+from datetime import datetime
 # from django.utils import timezone
 
 
@@ -342,95 +343,100 @@ def register_routes(app):
         return render_template('parksup.html', plazassup=plazas_data)
 
 
-    # @app.route('/api/entrada', method=['POST'])
-    # def entrada():
-    #     data = request.get_json(force=True)
-    #     #print(data)
-    #     #return data
-    #     matricula = data.get['matricula']
-    #     reg = Vehiculo.query.filter_by(matricula=matricula).first()
-
-    #     if not reg:
-    #         return jsonify({'error': 'matricula no registrada'}), 403
+    @app.route('/api/entrada', methods=['POST'])
+    def entrada():
+        data = request.get_json(force=True)
+        matricula = data.get('matricula')
         
-    #     spotLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
-    #     spotLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
+        reg = Vehiculo.query.filter_by(matricula=matricula).first()
 
-    #     if spotLibreinf:
-    #         newlog = ParkingLog[
-    #             matricula: matricula,
-    #             tiempo_entrada: datetime.now(),
-    #             tiempo_salida: None
-    #         ]
-    #         db.session.add(newlog)
-    #         db.session.commit
-    #         return jsonify({'success': 'entrada registrada'}), 200
-
-    #     else:
-    #         if spotLibresup:
-    #             newlog = ParkingLog[
-    #             matricula: matricula,
-    #             tiempo_entrada: datetime.now(),
-    #             tiempo_salida: None
-    #             ]
-    #             db.session.add(newlog)
-    #             db.session.commit
-
-    #         else:
-    #             return jsonify({'error': 'parking completo'}), 409
-            
+        if not reg:
+            return jsonify({'error': 'Matrícula no registrada'}), 403
         
-    # @app.route('/api/actualizarplaza', method=['POST'])
-    # def actualizarplaza():
-    #     data = request.get_json(force=True)
-    #     #print(data)
-    #     #return data
-    #     plazaID = data.get['plazaID']
-    #     estado = data.get['estado']
-    #     plazaLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
-    #     plazaLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
-    #     plaza = ParkingInferior.query.filter_by(numero=plazaID).first()
-    #     plaza.ocupada = estado
-    #     db.session.commit
-    #     return jsonify({'success': 'plaza actualizada'}), 200
-    
+        spot_libre_inf = ParkingInferior.query.filter_by(ocupada=False).first()
+        spot_libre_sup = ParkingSuperior.query.filter_by(ocupada=False).first()
 
-    # @app.route('/api/salida', method=['POST'])
-    # def entrada():
-    #     data = request.get_json(force=True)
-    #     #print(data)
-    #     #return data
-    #     matricula = data.get['matricula']
-    #     reg = Vehiculo.query.filter_by(matricula=matricula).first()
+        if spot_libre_inf:
+            new_log = ParkingLog(
+                matricula=matricula,
+                tiempo_entrada=datetime.now(),
+                tiempo_salida=None
+            )
+            db.session.add(new_log)
+            spot_libre_inf.ocupada = True  # Marcar plaza como ocupada
+            db.session.commit()
+            return jsonify({'success': 'Entrada registrada'}), 200
 
-    #     if not reg:
-    #         return jsonify({'error': 'matricula no registrada'}), 403
+        elif spot_libre_sup:
+            new_log = ParkingLog(
+                matricula=matricula,
+                tiempo_entrada=datetime.now(),
+                tiempo_salida=None
+            )
+            db.session.add(new_log)
+            spot_libre_sup.ocupada = True  # Marcar plaza como ocupada
+            db.session.commit()
+            return jsonify({'success': 'Entrada registrada en parking superior'}), 200
+
+        return jsonify({'error': 'Parking completo'}), 409
+
+
+    @app.route('/api/actualizarplaza', methods=['POST'])
+    def actualizarplaza():
+        data = request.get_json(force=True)
         
-    #     spotLibreinf = ParkingInferior.query.filter_by(ocupada=False).first()
-    #     spotLibresup = ParkingSuperior.query.filter_by(ocupada=False).first()
+        sensor_id = data.get('sensorID')  # Puede ser "PS" o "PI"
+        plaza_id = data.get('plazaID')
+        estado = data.get('estado')  # True = Ocupada, False = Libre
+        
+        # Validar que el sensor_id sea correcto
+        if sensor_id not in ['PS', 'PI']:
+            return jsonify({'error': 'ID de sensor inválido'}), 400
 
-    #     if spotLibreinf:
-    #         newlog = ParkingLog[
-    #             matricula: matricula,
-    #             tiempo_entrada: None,
-    #             tiempo_salida: datetime.now()
-    #         ]
-    #         db.session.add(newlog)
-    #         db.session.commit
-    #         return jsonify({'success': 'entrada registrada'}), 200
+        # Seleccionar el modelo de base de datos según el sensor recibido
+        if sensor_id == 'PS':
+            plaza = ParkingSuperior.query.filter_by(numero=plaza_id).first()
+        else:  # sensor_id == 'PI'
+            plaza = ParkingInferior.query.filter_by(numero=plaza_id).first()
 
-    #     else:
-    #         if spotLibresup:
-    #             newlog = ParkingLog[
-    #             matricula: matricula,
-    #             tiempo_entrada: datetime.now(),
-    #             tiempo_salida: None
-    #             ]
-    #             db.session.add(newlog)
-    #             db.session.commit
+        if not plaza:
+            return jsonify({'error': 'Plaza no encontrada'}), 404
 
-    #         else:
-    #             return jsonify({'error': 'parking completo'}), 409
+        plaza.ocupada = bool(estado)  # Convertir a booleano
+        db.session.commit()
+
+        return jsonify({'success': 'Plaza actualizada'}), 200
+
+
+
+    @app.route('/api/salida', methods=['POST'])
+    def salida():
+        data = request.get_json(force=True)
+        matricula = data.get('matricula')
+
+        reg = Vehiculo.query.filter_by(matricula=matricula).first()
+
+        if not reg:
+            return jsonify({'error': 'Matricula no registrada'}), 403
+        
+        log = ParkingLog.query.filter_by(matricula=matricula, tiempo_salida=None).first()
+
+        if not log:
+            return jsonify({'error': 'No hay registro de entrada para esta matrícula'}), 404
+
+        log.tiempo_salida = datetime.now()
+
+        # Liberar la plaza ocupada por el vehículo
+        plaza_inf = ParkingInferior.query.filter_by(ocupada=True).first()
+        plaza_sup = ParkingSuperior.query.filter_by(ocupada=True).first()
+
+        if plaza_inf:
+            plaza_inf.ocupada = False
+        elif plaza_sup:
+            plaza_sup.ocupada = False
+
+        db.session.commit()
+        return jsonify({'success': 'Salida registrada'}), 200
 
 
     # Ruta para cerrar sesión
