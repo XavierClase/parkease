@@ -49,24 +49,6 @@ class Vehiculo(db.Model):
             "color": self.color
         }
 
-<<<<<<< HEAD
-class ParkingSpot(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    spot_id = db.Column(db.String(10), unique=True, nullable=False)
-    is_occupied = db.Column(db.Boolean, default=False)
-
-    def __repr__(self):
-        return f'<ParkingSpot {self.spot_id} - {"Occupied" if self.is_occupied else "Available"}>'
-
-class ParkingLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    spot_id = db.Column(db.String(10), db.ForeignKey('parking_spot.spot_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-
-    def __repr__(self):
-        return f'<ParkingLog {self.spot_id} - {self.user_id} - {self.timestamp}>'
-=======
 
 # Modelo de Parking Inferior
 class ParkingInferior(db.Model):
@@ -99,5 +81,4 @@ class ParkingLog(db.Model):
     
     def __repr__(self):
         return f'<ParkingLog {self.matricula}>'
->>>>>>> origin/alex
 

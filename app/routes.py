@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from flask import Flask, request, make_response, redirect, render_template, session, flash, g, url_for
-=======
 from flask import Flask, request, make_response, redirect, render_template, session, flash, g, jsonify, url_for
->>>>>>> origin/alex
 from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
@@ -104,10 +100,6 @@ def register_routes(app):
             if user and check_password_hash(user.password, password):
                 session['username'] = name
                 session['user_id'] = user.id
-<<<<<<< HEAD
-                flash("Sesión iniciada correctamente.")
-=======
->>>>>>> origin/alex
                 return redirect('/home')
         return render_template('login.html')
 
@@ -228,12 +220,7 @@ def register_routes(app):
         
         # Mostrar el formulario de creación
         return render_template('create_vehicle.html')
-<<<<<<< HEAD
-
-
-=======
     
->>>>>>> origin/alex
     @app.route('/edit_vehicle/<int:vehicle_id>', methods=['GET', 'POST'])
     def edit_vehicle(vehicle_id):
         # Verificar si el usuario ha iniciado sesión
@@ -309,11 +296,7 @@ def register_routes(app):
         
         flash("Vehículo eliminado exitosamente.", "success")
         return redirect(url_for('profile'))
-<<<<<<< HEAD
-        
-=======
     
->>>>>>> origin/alex
     # Ruta acceso página información de la empresa
     @app.route('/info')
     def about():

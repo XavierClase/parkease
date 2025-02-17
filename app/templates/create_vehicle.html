@@ -10,19 +10,19 @@ Crear Vehículo
             <form id="vehicle-form" method="POST" action="{{ url_for('create_vehicle') }}">
                 <div class="mb-3">
                     <label for="marca" class="form-label">Marca</label>
-                    <input type="text" class="form-control" id="marca" name="marca" placeholder="Ej. Toyota" required>
+                    <input type="text" class="form-control" id="marca" name="marca" placeholder="Marca" required>
                 </div>
                 <div class="mb-3">
                     <label for="modelo" class="form-label">Modelo</label>
-                    <input type="text" class="form-control" id="modelo" name="modelo" placeholder="Ej. Corolla" required>
+                    <input type="text" class="form-control" id="modelo" name="modelo" placeholder="Modelo" required>
                 </div>
                 <div class="mb-3">
                     <label for="matricula" class="form-label">Matrícula</label>
-                    <input type="text" class="form-control" id="matricula" name="matricula" placeholder="Ej. ABC1234" required>
+                    <input type="text" class="form-control" id="matricula" name="matricula" placeholder="Matrícula" required>
                 </div>
                 <div class="mb-3">
                     <label for="color" class="form-label">Color</label>
-                    <input type="text" class="form-control" id="color" name="color" placeholder="Ej. Rojo" required>
+                    <input type="text" class="form-control" id="color" name="color" placeholder="Color" required>
                 </div>
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Guardar Vehículo</button>
