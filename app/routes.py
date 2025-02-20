@@ -3,12 +3,10 @@ from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
 from . import db
-from flask import jsonify
 from datetime import datetime
 # from django.utils import timezone
 
-
-sensor_status = {"status": "unknown"}
+sensor_status = {}
 
 def register_routes(app):
     # Antes de cada request, definir si hay sesión activa
@@ -16,41 +14,6 @@ def register_routes(app):
     def before_request():
         g.user_logged_in = 'username' in session
 
-    @app.route('/sensor', methods=['POST'])
-    def receive_sensor_data():
-        global sensor_status
-        data = request.get_json()
-        
-        if data and "status" in data:
-            try:
-                status = int(data["status"])  # Convertir a entero (0 o 1)
-                sensor_status["status"] = status
-                print("Estado del sensor:", status)
-
-                # Actualizar la base de datos en la plaza 2
-                db.session.execute(
-                    "UPDATE parking_superior SET ocupado = :status WHERE num_plaza = 2",
-                    {"status": status}
-                )
-                db.session.commit()
-
-                return jsonify({"message": "Dato recibido y almacenado", "status": status})
-
-            except ValueError:
-                return jsonify({"error": "Formato de status inválido"}), 400
-        else:
-            return jsonify({"error": "Datos inválidos"}), 400
-
-    @app.route('/sensor_status', methods=['GET'])
-    def get_sensor_status():
-        return jsonify(sensor_status)
-    # Ruta de inicio
-    @app.route('/')
-    def index():
-        user_ip = request.remote_addr
-        response = make_response(redirect('/main'))
-        session['user_ip'] = user_ip
-        return response
 
     # Ruta principal
     @app.route('/main', methods=['GET', 'POST'])
@@ -334,7 +297,7 @@ def register_routes(app):
             parking_superior = ParkingSuperior.query.filter_by(numero=numero_plaza).first()
 
             if parking_superior:
-                ParkingSuperior.ocupada = int(request.form.get('ocupada'))  # Convertimos a entero (0 o 1)
+                ParkingSuperior.ocupada = int(request.form.get('ocupada')) 
                 db.session.commit()
 
             # Volvemos a obtener todas las plazas después de actualizar
@@ -363,7 +326,7 @@ def register_routes(app):
                 tiempo_salida=None
             )
             db.session.add(new_log)
-            spot_libre_inf.ocupada = True  # Marcar plaza como ocupada
+            spot_libre_inf.ocupada = True  
             db.session.commit()
             return jsonify({'success': 'Entrada registrada'}), 200
 
@@ -374,7 +337,7 @@ def register_routes(app):
                 tiempo_salida=None
             )
             db.session.add(new_log)
-            spot_libre_sup.ocupada = True  # Marcar plaza como ocupada
+            spot_libre_sup.ocupada = True  
             db.session.commit()
             return jsonify({'success': 'Entrada registrada en parking superior'}), 200
 
@@ -385,15 +348,13 @@ def register_routes(app):
     def actualizarplaza():
         data = request.get_json(force=True)
         
-        sensor_id = data.get('sensorID')  # Puede ser "PS" o "PI"
+        sensor_id = data.get('sensorID')  
         plaza_id = data.get('plazaID')
-        estado = data.get('estado')  # True = Ocupada, False = Libre
+        estado = data.get('estado')  
         
-        # Validar que el sensor_id sea correcto
         if sensor_id not in ['PS', 'PI']:
             return jsonify({'error': 'ID de sensor inválido'}), 400
 
-        # Seleccionar el modelo de base de datos según el sensor recibido
         if sensor_id == 'PS':
             plaza = ParkingSuperior.query.filter_by(numero=plaza_id).first()
         else:  # sensor_id == 'PI'
@@ -402,7 +363,7 @@ def register_routes(app):
         if not plaza:
             return jsonify({'error': 'Plaza no encontrada'}), 404
 
-        plaza.ocupada = bool(estado)  # Convertir a booleano
+        plaza.ocupada = bool(estado)
         db.session.commit()
 
         return jsonify({'success': 'Plaza actualizada'}), 200
@@ -437,6 +398,52 @@ def register_routes(app):
 
         db.session.commit()
         return jsonify({'success': 'Salida registrada'}), 200
+
+    @app.route('/sensor', methods=['POST'])
+    def receive_sensor_data():
+        global sensor_status
+        data = request.get_json()
+    
+        if data and "sensorID" in data and "plazaID" in data and "estado" in data:
+            try:
+                sensorID = data["sensorID"]
+                plazaID = int(data["plazaID"])
+                estado = bool(data["estado"])  # Convertir a booleano
+
+                sensor_status = {
+                    "sensorID": sensorID,
+                    "plazaID": plazaID,
+                    "estado": estado
+                }
+
+                print("Datos recibidos:", sensor_status)
+
+                # Hacer una petición interna a '/api/actualizarplaza'
+                with app.test_request_context('/api/actualizarplaza', method='POST', json=sensor_status):
+                    return actualizarplaza()
+
+            except ValueError:
+                return jsonify({"error": "Formato de datos inválido"}), 400
+        else:
+            return jsonify({"error": "Datos inválidos"}), 400
+
+    # Ruta de inicio
+    @app.route('/')
+    def index():
+        user_ip = request.remote_addr
+        response = make_response(redirect('/main'))
+        session['user_ip'] = user_ip
+        return response
+
+
+
+
+
+
+
+
+
+
 
 
     # Ruta para cerrar sesión
