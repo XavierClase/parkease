@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+Bienvenido - ParkEase
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
+    <div class="row text-center">
+        <!-- Parking Superior -->
+        <div class="col-md-6">
+            <h2>Parking Superior</h2>
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/parking.png') }}" class="card-img-top" alt="Parking Superior">
+                <div class="card-body">
+                    <a href="{{ url_for('parksup') }}" class="btn btn-perfil btn-sm">Ver disponibilidad de plazas</a>
+                </div>
+            </div>
+        </div>
+        <!-- Parking Inferior -->
+        <div class="col-md-6">
+            <h2>Parking Inferior</h2>
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/parking.png') }}" class="card-img-top" alt="Parking Inferior">
+                <div class="card-body">
+                    <a href="{{ url_for('parkinf') }}" class="btn btn-perfil btn-sm">Ver disponibilidad de plazas</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+psolafp@ibf.cat

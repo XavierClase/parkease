@@ -9,7 +9,13 @@
 
 
 {% block body %}
+<<<<<<< HEAD
 
+=======
+    {% block header%}
+        {%include 'header.html'%}
+    {% endblock%}
+>>>>>>> origin/alex
     {% for messages in get_flashed_messages() %}
     <div class="alert alert-success alert-dismiss">
         <button type="button" class="close" data-bs-dismissible="alert" aria-label="tancar">&times;</button>

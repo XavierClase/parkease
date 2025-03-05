@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <div class="container text-center mt-5">
     <img src="{{ url_for('static', filename='img/logo_parkEasy.png') }}" alt="Logo ParkEase" class="logo mb-4">
 
@@ -14,6 +15,19 @@
     <div class="buttons mt-4">
         <a href="/login" class="btn btn-custom me-3">Iniciar Sesión</a>
         <a href="/register" class="btn btn-custom">Registrarse</a>
+=======
+<div class="prelogin-container container text-center mt-5">
+    <div class="prelogin">
+        <img src="{{ url_for('static', filename='images/plogo.png') }}" alt="Logo ParkEase" class="logo mb-4">
+
+        <h1 class="main-title">Encuentra tu plaza, en un CLIC.</h1>
+        <p class="subtitle">Reserva tu aparcamiento ya</p>
+    
+        <div class="buttons mt-4">
+            <a href="/login" class="btn btn-custom btn-custom-iniciar me-3">Iniciar Sesión</a>
+            <a href="/register" class="btn btn-custom">Registrarse</a>
+        </div>
+>>>>>>> origin/alex
     </div>
 </div>
 {% endblock %}

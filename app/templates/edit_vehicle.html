@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}
+Editar Vehículo
+{% endblock %}
+{% block content %}
+<section class="register-container vehicle-edit-container perfil-container">
+    <div class="display-flex justify-content-center row ">
+        <div class="col-md-6 login">
+            <h2>Editar Vehículo</h2>
+            <form id="vehicle-form" method="POST" action="{{ url_for('edit_vehicle', vehicle_id=vehicle_data.id) }}">
+                <div class="mb-3">
+                    <label for="marca" class="form-label">Marca</label>
+                    <input type="text" class="form-control" id="marca" name="marca" value="{{ vehicle_data.marca }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="modelo" class="form-label">Modelo</label>
+                    <input type="text" class="form-control" id="modelo" name="modelo" value="{{ vehicle_data.modelo }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="matricula" class="form-label">Matrícula</label>
+                    <input type="text" class="form-control" id="matricula" name="matricula" value="{{ vehicle_data.matricula }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color</label>
+                    <input type="text" class="form-control" id="color" name="color" value="{{ vehicle_data.color }}" required>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary btn-perfil">Guardar Cambios</button>
+                    <a href="{{ url_for('profile') }}" class="btn btn-delete">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
