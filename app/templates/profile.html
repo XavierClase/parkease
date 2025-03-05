@@ -3,11 +3,11 @@
 Perfil
 {% endblock %}
 {% block content %}
-<section class="register-container perfil-container">
+<section class="register-container perfil-container profile ">
     <div class="display-flex justify-content-center row">
         <div class="col-md-6">
             <div class="mb-3">
-                <p>{{ user_data.email }}</p>
+                <p class="user-mail">{{ user_data.email }}</p>
             </div>
             <div class="mb-3">
                 <!-- Botón para editar -->
@@ -20,7 +20,7 @@ Perfil
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6 datos-user">
+        <div class="col-md-4 datos-user login">
             <h2>PERFIL</h2>
             <form id="profile-form" method="POST">
                 <div class="mb-3">
@@ -41,7 +41,7 @@ Perfil
                 </div>
             </form>
         </div>
-        <div class="col-md-6 datos-user">
+        <div class="col-md-4 datos-user login">
             <h2>VEHÍCULOS</h2>
             {% if user_data.vehiculos %}
                 {% for vehiculo in user_data.vehiculos %}
@@ -50,7 +50,7 @@ Perfil
                         <div class="vehicle-info">
                             <p><strong>Matrícula:</strong> <span>{{ vehiculo.matricula }}</span></p>
                             <div class="vehicle-actions">
-                                <a href="{{ url_for('edit_vehicle', vehicle_id=vehiculo.id) }}" class="btn btn-edit">Editar</a>
+                                <a href="{{ url_for('edit_vehicle', vehicle_id=vehiculo.id) }}" class="btn btn-perfil">Editar</a>
                                 <form action="{{ url_for('delete_vehicle', vehicle_id=vehiculo.id) }}" method="POST" style="display: inline;">
                                     <button type="submit" class="btn btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este vehículo?');">
                                         Eliminar
@@ -66,8 +66,13 @@ Perfil
             {% endif %}
             <!-- Botón para crear un nuevo vehículo -->
             <div class="mt-3">
-                <a href="{{ url_for('create_vehicle') }}" class="btn btn-create">Crear Vehículo</a>
+                <a href="{{ url_for('create_vehicle') }}" class="btn btn-perfil">Crear Vehículo</a>
             </div>
+        </div>
+    </div>
+    <div class="display-flex justify-content-center row">
+        <div class="col-md-6">
+            <button class="btn-perfil"><a href="/logout">Cerar sesión</a></button>
         </div>
     </div>
 </section>

@@ -3,9 +3,9 @@
 Crear Vehículo
 {% endblock %}
 {% block content %}
-<section class="register-container vehicle-create-container">
+<section class="register-container vehicle-edit-container perfil-container">
     <div class="display-flex justify-content-center row">
-        <div class="col-md-6">
+        <div class="col-md-6 login">
             <h2>Crear Vehículo</h2>
             <form id="vehicle-form" method="POST" action="{{ url_for('create_vehicle') }}">
                 <div class="mb-3">
@@ -25,8 +25,8 @@ Crear Vehículo
                     <input type="text" class="form-control" id="color" name="color" placeholder="Color" required>
                 </div>
                 <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">Guardar Vehículo</button>
-                    <a href="{{ url_for('profile') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-perfil">Guardar Vehículo</button>
+                    <a href="{{ url_for('profile') }}" class="btn btn-delete">Cancelar</a>
                 </div>
             </form>
         </div>
