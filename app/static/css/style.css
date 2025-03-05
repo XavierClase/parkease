@@ -1,6 +1,6 @@
 body {
-    background-color: #004d26; 
-    color: #fff; 
+    background-color: #d6d6d6; 
+    color: #004d26; 
     font-family: 'Arial', sans-serif;
     text-align: center;
     padding: 0;
@@ -8,32 +8,43 @@ body {
 }
 
 .logo {
-    max-width: 150px; 
-    margin-top: 3rem;
+    max-width: 275px; 
 }
 
+h2 {
+    font-weight: bold;
+}
+
+h3{
+    font-weight: bold;
+}
 
 .main-title {
-    font-size: 2.5rem;
+    font-size: 3.25rem;
     font-weight: bold;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .subtitle {
-    font-size: 1rem;
+    font-size: 1.5rem;
     margin-top: 0.5rem;
-    color: #cfcfcf; 
+    color: #000000; 
 }
 
 .buttons {
     margin-top: 2rem;
 }
 
+.buttons a {
+    font-size: 1.6rem;
+}
+
+
 .btn-custom {
     font-size: 1rem;
     padding: 0.5rem 1.5rem;
-    border: 2px solid #1db954; 
-    color: #1db954;
+    border: 1px solid #004d26; 
+    color: #004d26;
     background-color: transparent;
     border-radius: 0.5rem;
     font-weight: bold;
@@ -41,42 +52,111 @@ body {
 }
 
 .btn-custom:hover {
-    background-color: #1db954; 
+    background-color: #00332e;
     color: #fff;
 }
 
-/* Estilos específicos para la vista de registro */
-.register-container {
-    margin: 0 auto;
-    justify-content: space-around;
-    padding: 20px;
+
+.btn-custom-iniciar {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+    background-color: #004d26;
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: all 0.3s ease; 
 }
 
-.register-container h1 {
-    font-size: 2.5rem;
+
+.prelogin-container{
+    height: 75vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.prelogin{
+    height: 75%;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(29, 185, 84, 0.2);
+    border-radius: 20px;
+}
+
+/* LOGIN */
+
+.login{
+    padding: 50px;
+    border-radius: 15px;
+    background-color: rgb(29, 185, 84, 0.2);
+}
+.login label {
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+
+.login p{
+    margin-top: 20px;
+}
+
+.login a{
+    color: #004d26;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login a:hover{
+    color: #00332e;
+    text-decoration: underline;
+}
+
+
+/*Formularios de registro */
+.register-container {
+    justify-content: space-around;
+    padding: 50px;
+}
+
+
+.register-container h1{
+    margin-top: 30px;
+    font-size: 2.7rem;
     font-weight: bold;
     margin-bottom: 30px;
 }
 
-.register-container h3 {
-    font-size: 1.5rem;
+.register-container h3{
+    font-size: 2rem;
+    font-weight: bold;
     margin-bottom: 15px;
     border-bottom: 2px solid white;
     display: inline-block;
     padding-bottom: 5px;
 }
 
-/* Formularios de registro */
+.register-container form {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
 .register-container .form-control {
-    border-radius: 20px;
+    border-radius: 10px;
     padding: 10px 15px;
+    width: 80%;
+    margin-left: 10%;
 }
 
 .register-container .btn-success {
-    border-radius: 20px;
+    width: 300px;
+    height: 60px;
+    border-radius: 25px;
     font-weight: bold;
     background-color: #00695c;
     border-color: #004d40;
+    font-size: 1.5rem;
 }
 
 .register-container .btn-success:hover {
@@ -84,13 +164,51 @@ body {
     border-color: #00332e;
 }
 
+.register-container p{
+    margin-top: 20px;
+}
+
+.register-container a{
+    color: #004d26;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-container a:hover{
+    color: #00332e;
+    text-decoration: underline;
+}
+
+.register-container .login{
+    padding: 20px;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
 /* Perfil */
+
 .perfil-container{
     margin: 0;
-    margin-right: 5%;
+    
+}
+.perfil-container .user-mail{
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+.perfil-container .btn-perfil{
+    
+    padding: 10px;
+    color: #ffffff;
+}
+.perfil-container .btn-perfil:hover{
+    color: #ffffff;
+    text-decoration: none;
 }
 .perfil-container .row{
     margin-top: 3em;
+    display: flex;
+    justify-content: space-around;
 }
 
 .perfil-container .row img{
@@ -100,21 +218,29 @@ body {
 }
 
 .btn-perfil{
-    font-size: 1rem;
-    padding: 0.5rem 1.5rem;
-    border: 2px solid #1db954; 
-    color: #1db954;
+    font-size: 1.2rem;
+    padding: 10px;
+    border: none;
     background-color: transparent;
     border-radius: 0.5rem;
     font-weight: bold;
     transition: all 0.2s ease;
     background-color: #1db954; 
     color: #fff;
+    text-decoration: none;
 }
 
 .btn-perfil:hover{
-    background-color: #004d40;
-    border-color: #00332e;
+    background-color: #00332e;
+}
+.btn-perfil a{
+    color: #fff;
+    text-decoration: none;
+}
+
+.btn-perfil a:hover{
+    color: #fff;
+    text-decoration: none;
 }
 
 .datos-user{
@@ -126,17 +252,52 @@ body {
 }
 
 .datos-user .vehiculo{
-    color: #1db954;
+    color: #00332e;
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 .datos-user .mb-3{
     margin-left: 5%;
+}
+
+.btn-delete{
+    font-size: 1.2rem;
+    padding: 10px;
+    border: 1px solid #00332e;
+    background-color: transparent;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    color: #00332e;
+    text-decoration: none;
+}
+
+.btn-delete:hover{
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+}
+
+
+/* Editar Vehiculo */
+.vehicle-edit-container{
+    height: 70vh;
+}
+
+.vehicle-edit-container h2{
+    margin-bottom: 15px;
+}
+
+.vehicle-form a:hover{
+    color: #fff!important;
+    text-decoration: none !important;
 }
 
 
 /*HEADER*/
 header{
     background-color: black;
-    border-bottom: 2px solid #04C298;
+    border-bottom: 3px solid #1db954;
 }
 
 /*INFO*/
@@ -152,22 +313,40 @@ header{
     width: 40vh;
 }
 /* Estilos para la sección de texto de "Sobre Nosotros" */
+.about-text h1{
+    color: #00332e;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.about-section p {
+    font-size: 1.3rem;
+    color: #00332e;
+}
 .about-text {
     padding: 30px 40px;
-    color: #ffffff;
+    color: #00332e;
     line-height: 1.8;
     height: 100vh;
     overflow: hidden;   
     text-align: right;
 }
 .text-resaltado{
-    color: #ffffff;
+    color: #00332e;
+    font-weight: bold;
 }
 
 /* Estilo para enlaces en la sección de contacto */
 .contact-info a {
     text-decoration: none;
     color: #ffffff;
+}
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+.contact-info p { 
+    color: #ffffff;
+    
 }
 .text-center{
     text-align: right;
@@ -252,3 +431,13 @@ header{
 #ocupacion{
     padding: 40px;
 }
+
+.card-body a:hover{
+    color: #ffffff;
+}
+
+.card{
+    background-color: transparent;
+    border: none;
+}
+

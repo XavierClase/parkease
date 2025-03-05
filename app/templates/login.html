@@ -5,22 +5,23 @@ Iniciar Sesión - ParkEase
 {% endblock %}
 
 {% block content %}
-<div class="register-container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="col-md-6">
+<div class="register-container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-6 login">
         <h1 class="text-center">INICIO SESIÓN</h1>
         <form method="POST" action="{{ url_for('login') }}">
             <div class="row">
                 <div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Correo de usuario</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Correo" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña">
                     </div>
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-success px-5">Iniciar Sesión</button>
+                        <p>¿No tienes una cuenta? <a href="/register">Registrate</a></p>
                     </div>
                 </div>
             </div> 

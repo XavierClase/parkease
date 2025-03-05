@@ -3,7 +3,7 @@ from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
 from . import db
-from datetime import datetime
+from datetime import datetime, timedelta
 # from django.utils import timezone
 
 sensor_status = {}
@@ -399,6 +399,46 @@ def register_routes(app):
         db.session.commit()
         return jsonify({'success': 'Salida registrada'}), 200
 
+
+    @app.route('/parking_log', methods=['POST'])
+    def verificar_cambio():
+        try:
+            # Definir el tiempo de verificación (últimos 60 segundos)
+            ahora = datetime.utcnow()
+            tiempo_limite = ahora - timedelta(seconds=60)
+
+            # Verificar si hay cambios recientes en tiempo_entrada o tiempo_salida
+            cambios = ParkingLog.query.filter(
+                (ParkingLog.tiempo_entrada >= tiempo_limite) | 
+                (ParkingLog.tiempo_salida >= tiempo_limite)
+            ).first()
+
+            if cambios:
+                print("⚡ Se detectó un cambio en la tabla parking_log.")
+                return jsonify({"cambio": True}), 200
+            else:
+                print("🔸 No hay cambios recientes en la tabla parking_log.")
+                return jsonify({"cambio": False}), 200
+        except Exception as e:
+            print(f"❌ Error al verificar cambios en la base de datos: {e}")
+            return jsonify({"error": "Error en la base de datos"}), 500
+
+    @app.route('/sensorpuerta', methods=['POST'])
+    def recibir_datos_sensor():
+        try:
+            data = request.json
+            sensor_id = data.get("sensorID")
+            estado = data.get("estado")
+
+            if sensor_id is not None and estado is not None:
+                print(f"📡 Sensor {sensor_id} ha detectado un objeto cerca: {estado}")
+                return jsonify({"mensaje": "Datos recibidos correctamente"}), 200
+            else:
+                return jsonify({"error": "Datos inválidos"}), 400
+        except Exception as e:
+            print(f"❌ Error procesando datos del sensor: {e}")
+            return jsonify({"error": "Error interno"}), 500
+
     @app.route('/sensor', methods=['POST'])
     def receive_sensor_data():
         global sensor_status
@@ -436,21 +476,10 @@ def register_routes(app):
         return response
 
 
-
-
-
-
-
-
-
-
-
-
     # Ruta para cerrar sesión
     @app.route('/logout')
     def logout():
         session.clear()
-        flash("Sesión cerrada correctamente.")
         return redirect('/')
 
     # Ruta de sesión activa
@@ -462,3 +491,5 @@ def register_routes(app):
         else:
             flash("Por favor inicia sesión primero.")
             return redirect('/login')
+
+
