@@ -1,142 +1,116 @@
-# OpenCV libs
 import cv2
 import numpy as np
-# Configura la ruta de Tesseract si es necesario (solo en Windows)
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-# Extra Libs
-import requests  # HTTP camera acquisition
-import time  # time.sleep
+import requests
+import time
 
-# recojemos la IP de la camara (1er parametro) y generamos la URL para capturar frames
-esp32_url = "http://172.16.5.66/capture"
+
+# Configura la ruta de Tesseract si es necesario (Windows)
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# IP de la cámara
+esp32_url = "http://172.16.0.59/capture"
 
 def ordenar_puntos(puntos):
-    # Ordenar los puntos en el orden: top-left, top-right, bottom-right, bottom-left
-    puntos = puntos.reshape(4, 2)  # Asegúrate de que tenga forma (4, 2)
+    puntos = puntos.reshape(4, 2)
     suma = puntos.sum(axis=1)
     diferencia = np.diff(puntos, axis=1)
-    top_left = puntos[np.argmin(suma)]
-    bottom_right = puntos[np.argmax(suma)]
-    top_right = puntos[np.argmin(diferencia)]
-    bottom_left = puntos[np.argmax(diferencia)]
-    return np.array([top_left, top_right, bottom_right, bottom_left], dtype="float32")
+    return np.array([ 
+        puntos[np.argmin(suma)],  # Top-left
+        puntos[np.argmin(diferencia)],  # Top-right
+        puntos[np.argmax(suma)],  # Bottom-right
+        puntos[np.argmax(diferencia)]  # Bottom-left
+    ], dtype="float32")
 
 def enderezar_imagen(imagen, puntos):
-    # Ordenar los puntos detectados
     puntos_ordenados = ordenar_puntos(puntos)
-    # Calcular el ancho y alto de la nueva imagen
-    (top_left, top_right, bottom_right, bottom_left) = puntos_ordenados
-    ancho1 = np.linalg.norm(bottom_right - bottom_left)
-    ancho2 = np.linalg.norm(top_right - top_left)
-    max_ancho = max(int(ancho1), int(ancho2))
-    alto1 = np.linalg.norm(top_right - bottom_right)
-    alto2 = np.linalg.norm(top_left - bottom_left)
-    max_alto = max(int(alto1), int(alto2))
-    # Puntos de destino para la transformación
-    destino = np.array([
-        [0, 0],
-        [max_ancho - 1, 0],
-        [max_ancho - 1, max_alto - 1],
-        [0, max_alto - 1]
-    ], dtype="float32")
-    # Calcular la matriz de transformación de perspectiva
+    (tl, tr, br, bl) = puntos_ordenados
+    ancho = max(np.linalg.norm(br - bl), np.linalg.norm(tr - tl))
+    alto = max(np.linalg.norm(tr - br), np.linalg.norm(tl - bl))
+    destino = np.array([[0, 0], [ancho - 1, 0], [ancho - 1, alto - 1], [0, alto - 1]], dtype="float32")
     matriz = cv2.getPerspectiveTransform(puntos_ordenados, destino)
-    # Aplicar la transformación de perspectiva
-    imagen_enderezada = cv2.warpPerspective(imagen, matriz, (max_ancho, max_alto))
-    return imagen_enderezada
+    return cv2.warpPerspective(imagen, matriz, (int(ancho), int(alto)))
 
-# Loop principal (se sale con tecla Q)
+def enviar_matricula_a_entrada(matricula):
+    try:
+        # URL de la ruta en routes.py
+        url = "http://127.0.0.1:81/api/entrada"
+        data = {"matricula": matricula}
+        response = requests.post(url, json=data)
+        
+        if response.status_code == 200:
+            print("Entrada registrada exitosamente.")
+            return True
+        elif response.status_code == 403:
+            print("Matrícula no registrada.")
+            return False
+        elif response.status_code == 409:
+            print("Parking completo.")
+            return False
+        else:
+            print(f"Error en la solicitud HTTP: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"Error en la solicitud HTTP: {e}")
+        return False
+
 while True:
-    # Frecuencia del loop
     time.sleep(1.0)
     try:
-        # Solicita una imagen a la ESP32-CAM
         response = requests.get(esp32_url, stream=True)
         if response.status_code == 200:
-            # Convertimos los datos como buffer de bytes (Numpy) que nos han enviado de la petición HTTP GET
             data = np.frombuffer(response.content, np.uint8)
-            # Convertimos el buffer de bytes a imagen válida para OpenCV
             image = cv2.imdecode(data, cv2.IMREAD_COLOR)
-            # Imagen a escala de grises, no necesitamos color, simplificamos memoria de cálculos
+
+            if image is None:
+                print("Error: No se pudo decodificar la imagen.")
+                continue
+
+            # Mostrar imagen original
+            cv2.imshow("Imagen Original", image)
+
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            # Usamos Canny para dejar toda la imagen en negro y en blanco todos los contornos que encuentre
-            edges1 = cv2.Canny(gray_image, 100, 200)
-            # Generamos una lista con todos los contornos
-            contours, _ = cv2.findContours(edges1, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            # Creamos un buffer B/W todo negro como máscara, compatible imagen OpenCV para pintar encima (solo grises)
-            mask = np.zeros_like(gray_image)  # Crear una nueva imagen en blanco del tamaño de la captura vacía para poder dibujar
-            # Una copia de la imagen para dibujar encima el resultado
-            mask_resultado = image.copy()
-            # Trabajamos con los contornos que hemos encontrado (primera vuelta) (eliminamos estrellas, no convexos)
+            cv2.imshow("Escala de Grises", gray_image)
+
+            edges = cv2.Canny(gray_image, 100, 200)
+            cv2.imshow("Bordes Detectados (Canny)", edges)
+
+            contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             contornos_candidatos = []
+
             for contour in contours:
-                if cv2.contourArea(contour) > 150:  # Filtrar áreas pequeñas
-                    # Aproximar el contorno
-                    epsilon = 0.025 * cv2.arcLength(contour, True)  # Mayor el 0.1 más aproximación hace, menos puntos de contorno
+                if cv2.contourArea(contour) > 150:
+                    epsilon = 0.025 * cv2.arcLength(contour, True)
                     aproximacion = cv2.approxPolyDP(contour, epsilon, True)
-                    x, y, w, h = cv2.boundingRect(aproximacion)
-                    # Adicional: opcional si quieres contornos convexos
-                    if cv2.isContourConvex(aproximacion):
-                        contornos_candidatos.append(contour)
-                    else:
-                        cv2.drawContours(mask, [contour], -1, 255, thickness=1)  # Dibuja en blanco sobre la máscara
-                else:
-                    cv2.drawContours(mask, [contour], -1, 128, thickness=1)  # Dibuja en gris sobre la máscara
+                    if len(aproximacion) == 4:
+                        contornos_candidatos.append(aproximacion)
 
-            # Trabajamos con los contornos que hemos encontrado (SEGUNDA vuelta)
-            contornos_candidatos2 = []
-            for contour in contornos_candidatos:
-                # Aproximar el contorno
-                epsilon = 0.07 * cv2.arcLength(contour, True)  # Con este valor me discrimina el cuadrado 4
-                aproximacion = cv2.approxPolyDP(contour, epsilon, True)
-                x, y, w, h = cv2.boundingRect(aproximacion)
-                # Calcular el centro del bounding box
-                centro_x = x + w // 2
-                centro_y = y + h // 2
-                # Verificar si tiene forma rectangular
-                if len(aproximacion) == 4:
-                    cv2.rectangle(mask_resultado, (x-8, y-8), (x + w + 8, y + h + 8), color=(0, 0, 255), thickness=1)  # COLOR ROJO
-                    cv2.putText(mask_resultado, str(len(aproximacion)), (centro_x, centro_y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                    contornos_candidatos2.append(contour)
-                    # Hacer crop de la región
-                    cropped_rect = gray_image[y:y+h, x:x+w]
-                    cropped_edges = cv2.Canny(cropped_rect, 100, 200)
-                    contornosinteriores, _ = cv2.findContours(cropped_edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    # Si hay cosas dentro puede ser una matrícula
-                    if len(contornosinteriores) > 10:
-                        # Enderezar la imagen usando la transformación de perspectiva
-                        rectangulo_enderezado = enderezar_imagen(image, aproximacion)
-                        # Le quitamos el borde del rectángulo (5 pixels)
-                        alto, ancho, canales = rectangulo_enderezado.shape
-                        pixelsreduccion = 5
-                        rectangulo_sinborde = rectangulo_enderezado[pixelsreduccion:alto-pixelsreduccion, pixelsreduccion:ancho-pixelsreduccion]
-                        # Mostrar el recorte de la matrícula
-                        cv2.imshow('Recorte de matrícula', rectangulo_sinborde)
-                        # Aplicamos OCR
-                        texto = pytesseract.image_to_string(rectangulo_sinborde, lang='eng')
-                        # Limpiar el texto eliminando espacios en blanco y caracteres no deseados
-                        texto_limpio = ''.join(e for e in texto if e.isalnum())
-                        # Verificar si el texto tiene una longitud mínima adecuada para ser una matrícula
-                        if len(texto_limpio) >= 5:  # Ajusta este valor según el formato de las matrículas esperadas
-                            print("¡Matrícula detectada!")
-                            print(f"Texto de la matrícula: {texto_limpio}")
-                        else:
-                            print("Texto detectado pero no parece ser una matrícula.")
-                elif len(aproximacion) == 3:  # Verificar si tiene forma triangular
-                    cv2.rectangle(mask_resultado, (x-4, y-4), (x + w + 4, y + h + 4), color=(0, 255, 0), thickness=1)  # COLOR VERDE
-                    cv2.putText(mask_resultado, str(len(aproximacion)), (centro_x, centro_y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-                    contornos_candidatos2.append(contour)
+            # Dibuja los contornos encontrados
+            debug_contours = image.copy()
+            cv2.drawContours(debug_contours, contornos_candidatos, -1, (0, 255, 0), 2)
+            cv2.imshow("Contornos Detectados", debug_contours)
 
-            # Dibujar los contornos cerrados en la imagen original
-            imagen_resultado = image.copy()
-            cv2.drawContours(imagen_resultado, contornos_candidatos2, -1, (0, 255, 0), 2)
-            # Muestra la imagen
-            cv2.imshow("Canny 1", edges1)
-            cv2.imshow("Contornos Externos Cerrados", mask)
-            cv2.imshow("Debug", mask_resultado)
-            cv2.imshow("Resultado final", imagen_resultado)
-            # Salir con la tecla 'q'
+            for rect in contornos_candidatos:
+                x, y, w, h = cv2.boundingRect(rect)
+                cropped_rect = gray_image[y:y+h, x:x+w]
+                cv2.imshow("Recorte ROI", cropped_rect)
+
+                rectangulo_enderezado = enderezar_imagen(image, rect)
+                cv2.imshow("Rectángulo Enderezado", rectangulo_enderezado)
+
+                # Preprocesamiento para mejorar OCR
+                gray_rect = cv2.cvtColor(rectangulo_enderezado, cv2.COLOR_BGR2GRAY)
+                _, thresh = cv2.threshold(gray_rect, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+                cv2.imshow("Binarización para OCR", thresh)
+
+                # Aplicar OCR y mostrar en terminal
+                texto = pytesseract.image_to_string(thresh, config='--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -c classify_bln_numeric_mode=1')
+                texto_limpio = ''.join(e for e in texto if e.isalnum() or e in [' ', '.', ','])
+
+                if texto_limpio:
+                    print(f"Texto detectado: {texto_limpio}")
+                    enviar_matricula_a_entrada(texto_limpio)
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         else:

@@ -437,6 +437,13 @@ header{
 }
 
 .card{
+<<<<<<< HEAD
     border: 1px solid #00332e;
     background-color: rgb(243, 243, 243);
 }
+=======
+    background-color: transparent;
+    border: none;
+}
+
+>>>>>>> origin/alex
