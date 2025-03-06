@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, redirect, render_template, session, flash, g, jsonify, url_for
+from flask import Flask, request, make_response, redirect, render_template, session, g, flash, jsonify, url_for
 from app.forms import LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User, Vehiculo, ParkingInferior, ParkingSuperior, ParkingLog
@@ -480,7 +480,12 @@ def register_routes(app):
     @app.route('/logout')
     def logout():
         session.clear()
+<<<<<<< HEAD
+        flash("Sesión cerrada correctamente.")
+        return redirect('/login')
+=======
         return redirect('/')
+>>>>>>> origin/alex
 
     # Ruta de sesión activa
     @app.route('/home')
